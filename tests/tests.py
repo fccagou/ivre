@@ -365,7 +365,7 @@ class IvreTests(unittest.TestCase):
                              stdin=open(os.devnull))[0], 0)
         self.assertEqual(RUN(["ivre", "scancli", "--count"])[1], b"0\n")
 
-    def test_nmap(self):
+    def FC_test_nmap(self):
 
         # Start a Web server to test CGI
         self.start_web_server()
@@ -1017,7 +1017,7 @@ class IvreTests(unittest.TestCase):
             self.assertEqual(RUN(["ivre", "scancli", "--init"],
                                  stdin=open(os.devnull))[0], 0)
 
-    def test_passive(self):
+    def FC_test_passive(self):
 
         # Init DB
         self.assertEqual(RUN(["ivre", "ipinfo", "--count"])[1], b"0\n")
@@ -1325,7 +1325,7 @@ class IvreTests(unittest.TestCase):
         shutil.rmtree("logs")
 
 
-    def test_data(self):
+    def FC_test_data(self):
         """ipdata (Maxmind, thyme.apnic.net) functions"""
 
         # Init DB
@@ -1489,7 +1489,7 @@ class IvreTests(unittest.TestCase):
         res = RUN(["ivre", "ipdata", "--init"], stdin=open(os.devnull))[0]
         self.assertEqual(res, 0)
 
-    def test_utils(self):
+    def FC_test_utils(self):
         """Functions that have not yet been tested"""
 
         self.assertIsNotNone(ivre.config.guess_prefix())
@@ -1612,7 +1612,21 @@ class IvreTests(unittest.TestCase):
                         i + 1,
                     )
 
-    def test_scans(self):
+    def test_parser(self):
+        # check parsers
+        # -------------
+        # Iptables
+        with ivre.parser.iptables.Iptables(os.path.join(SAMPLES, 'iptables.log')) as ipt_parser:
+            count=0
+            for res in ipt_parser:
+                count+=1
+                self.assertTrue(b'proto' in res  and b'src' in res and b'dst' in res)
+                if res[b'proto'].decode() in ('udp', 'tcp'):
+                    self.assertTrue(b'sport' in res and b'dport' in res)
+
+            self.assertEqual(count, 40)
+
+    def FC_test_scans(self):
         "Run scans, with and without agents"
 
         # Check simple runscans
@@ -1819,7 +1833,7 @@ class IvreTests(unittest.TestCase):
         for dirname in ['scans', 'tmp']:
             shutil.rmtree(dirname)
 
-    def test_conf(self):
+    def FC_test_conf(self):
         # Ensure env var IVRE_CONF is taken into account
         has_env_conf = "IVRE_CONF" in os.environ
         if has_env_conf:
@@ -1834,7 +1848,8 @@ class IvreTests(unittest.TestCase):
             del os.environ["IVRE_CONF"]
 
 
-TESTS = set(["nmap", "passive", "data", "utils", "scans", "conf"])
+#TESTS = set(["nmap", "passive", "data", "utils", "scans", "conf"])
+TESTS = set(["parser"])
 
 
 DATABASES = {
@@ -1917,6 +1932,7 @@ if __name__ == '__main__':
     import ivre.parser.bro
     import ivre.passive
     import ivre.utils
+    import ivre.parser.iptables
     if not ivre.config.DEBUG:
         sys.stderr.write("You *must* have the DEBUG config value set to "
                          "True to run the tests.\n")
