@@ -58,10 +58,10 @@ install:
 before_script:
   # display version
   - ivre version
-  # # init DB
-  # - ivre ipinfo --init < /dev/null
-  # - ivre scancli --init < /dev/null
-  # - ivre ipdata --init < /dev/null
+  # init DB
+  - ivre ipinfo --init < /dev/null
+  - ivre scancli --init < /dev/null
+  - ivre ipdata --init < /dev/null
   - cat .travis/ivre.conf >> ~/.ivre.conf
   # - echo "NMAP_SHARE_PATH = '`pwd`/usr/local/nmap/share/nmap'" >> ~/.ivre.conf
   # # install p0f & Bro (.tar files)

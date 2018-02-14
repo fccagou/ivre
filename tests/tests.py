@@ -1616,7 +1616,8 @@ class IvreTests(unittest.TestCase):
         # check parsers
         # -------------
         # Iptables
-        with ivre.parser.iptables.Iptables(os.path.join(SAMPLES, 'iptables.log')) as ipt_parser:
+        sample_file_name=os.path.join(SAMPLES, 'iptables.log')
+        with ivre.parser.iptables.Iptables(sample_file_name) as ipt_parser:
             count=0
             for res in ipt_parser:
                 count+=1
@@ -1625,6 +1626,11 @@ class IvreTests(unittest.TestCase):
                     self.assertTrue(b'sport' in res and b'dport' in res)
 
             self.assertEqual(count, 40)
+        
+        res, out, err = RUN(["ivre", "flow2db", "-t", "iptables", sample_file_name])
+        print (err)
+        print (out)
+        self.assertEqual(res, 0)
 
     def FC_test_scans(self):
         "Run scans, with and without agents"
